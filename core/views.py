@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 
 ACCESS_TOKEN = 'EAA55oumuenQBO15XwdaLpo5Nf5yDnegHmXCZCuqJWqSOTqKtsJzy36xFuopi7geIZCGFZCePlsy3y7nZBlwoqzSO5xyLgrmg28XKYsWFIGDboJZCm0JGyxRyoXtPGL2UZBjxwAb5YaLa5kYigsXD7z8FCxyIp0vZC0zbqIAGQ7aR3cv1pmSaxfnj5RiuWnTda6KQEN4H5ZATXRnjRVYdLRxh6bmXbN6dcUvaxGB8fZCC4vG7ozZApHeZC8aUu0RkBCV5StXZCwZDZD'
 
-ef home(request):
+def home(request):
     return render(request, 'core/home.html')
 
 def dashboard(request):
