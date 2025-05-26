@@ -7,14 +7,23 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            padding: 20px;
+            padding: 40px;
+            background-color: #f4f4f4;
         }
+
+        h1 {
+            color: #4267B2;
+        }
+
         input[type="text"] {
             padding: 10px;
             width: 300px;
             font-size: 16px;
-            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 15px;
         }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -24,14 +33,16 @@
             cursor: pointer;
             border-radius: 5px;
         }
-        iframe {
-            margin-top: 20px;
-            border: none;
-            overflow: hidden;
-        }
+
         .error {
             color: red;
             margin-top: 20px;
+        }
+
+        .plugin-wrapper {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
         }
     </style>
 </head>
@@ -40,39 +51,30 @@
 
     <form method="POST">
         {% csrf_token %}
-        <input type="text" name="username" placeholder="Enter Facebook Page Username" required value="{{ username|default:'' }}">
-        <br/>
+        <input type="text" name="username" placeholder="Enter Facebook Page Username" value="{{ username|default:'' }}" required>
+        <br>
         <button type="submit">Load Page</button>
     </form>
 
     {% if username %}
-        <div id="fb-container" style="position: relative;">
-            <iframe id="fb-iframe"
-                src="https://www.facebook.com/plugins/page.php?href=https://www.facebook.com/{{ username }}&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId"
+        <div class="plugin-wrapper">
+            <iframe 
+                src="https://www.facebook.com/plugins/page.php?href=https://www.facebook.com/{{ username }}&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true"
                 width="500"
                 height="600"
                 style="border:none;overflow:hidden"
                 scrolling="no"
                 frameborder="0"
                 allowfullscreen="true"
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                onerror="document.getElementById('error-message').style.display='block';">
             </iframe>
         </div>
-        <div id="error-message" class="error" style="display: none;">
-            ❌ This might be a personal profile or an invalid Facebook Page username.
-        </div>
 
-        <script>
-            // Wait a few seconds and then check if iframe loaded
-            setTimeout(function() {
-                const iframe = document.getElementById('fb-iframe');
-                const container = document.getElementById('fb-container');
-                
-                if (iframe.clientHeight < 100) {
-                    document.getElementById('error-message').style.display = 'block';
-                }
-            }, 5000); // 5 seconds timeout
-        </script>
+        <!-- Error message shown if iframe fails to load (likely personal profile or invalid page) -->
+        <p id="error-message" class="error" style="display:none;">
+            ❌ Unable to load. Please make sure this is a valid Facebook <strong>Page</strong> username. Personal profiles will not work.
+        </p>
     {% endif %}
 </body>
 </html>
