@@ -2,34 +2,41 @@ import requests
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+
+ACCESS_TOKEN = 'EAA55oumuenQBOZBbWqaAIYIFZCKHZCkOA7CADC2nRsxUzSicd6bI8YZCxUAAIrcYCZA0mhgZCbI0hWPivlIKm5eLBI3t0CbPHig8WuIRfDYGurpCshT8kOURqA69mo07R9cck8VHuZCcBJx5rL4T94PpGnyIoqS6ZAE8YkMS1jFh9hYZADdDATAtQaHHxPtAz8bXhHEGckWyRVLWu37T0ZAD7bpUcxsjwRLMIGZCL4gQD8wzMcHGZCbvk4Pew0kkCwwVIxZCH7l4ZD'
+
 def home(request):
-    return render(request, 'core/home.html')
-@login_required
+    return render(request, 'core\home.html')
+
 def dashboard(request):
-    username = request.GET.get('username')
-    context = {}
-
-    if username:
-        access_token = 'EAA55oumuenQBO3kZBrr0VjVcGDz6nh4eOeVhyPxUSlqpJVWLRmiAQzD2LDX0arnFZAxNi8zr6TNhGljeQkuyZAHTWhNJWlf24qXz7RHaUFRhHyrzjdWzdteT7xo3ZAcPISAtgv9ZBqu8RG0ZBwenM0N6eNZAFHsu5Nubzon2bendDZBRRZCFBQdkw8x4t3aOi3b2B7uOp0ITziZCGA16LUVNJlGXxEpZClwYa5109lDY4YendwEEZC5XmUy3JLa7em20kL08RAZDZD'
-        fields = 'id,name,first_name,last_name,email,link,verified,picture.width(200).height(200),category'
-        graph_url = f'https://graph.facebook.com/v18.0/{username}?fields={fields}&access_token={access_token}'
-
-        try:
-            response = requests.get(graph_url)
+    user_data = None
+    error = None
+    username = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        if username:
+            base_url = f'https://graph.facebook.com/{username}?fields=id,name,link,picture.type(large),is_verified,followers_count,about,website,category&access_token={ACCESS_TOKEN}'
+            response = requests.get(base_url)
             data = response.json()
 
             if 'error' in data:
-                context['data'] = {'error': {'message': data['error']['message']}}
+                error = data['error']['message']
             else:
-                context['data'] = data
-                context['is_page'] = 'category' in data
-                context['username'] = username
-
-        except requests.exceptions.RequestException as e:
-            context['data'] = {'error': {'message': str(e)}}
-
-    return render(request, 'core/dashboard.html', context)
+                user_data = data
+                # Check if it's a page and get posts
+                if 'category' in data:  # Pages have a category field
+                    posts_url = f'https://graph.facebook.com/{username}/posts?access_token={ACCESS_TOKEN}'
+                    posts_response = requests.get(posts_url)
+                    posts_data = posts_response.json()
+                    user_data['posts'] = posts_data.get('data', [])
+    return render(request, 'dashboard.html', {
+        'user_data': user_data, 
+        'posts': user_data.get('posts', []) if user_data else [],
+        'error': error, 
+        'username': username
+    })
 
 def logout_view(request):
+    from django.contrib.auth import logout
     logout(request)
-    return redirect('home')
+    return render(request, 'home.html')
