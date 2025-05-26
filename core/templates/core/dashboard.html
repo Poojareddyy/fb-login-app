@@ -20,11 +20,12 @@
         }
         .user-info, .posts { margin-top: 30px; text-align: left; display: inline-block; max-width: 600px; }
         .post { border-top: 1px solid #ccc; margin-top: 10px; padding-top: 10px; }
+        iframe { margin-top: 20px; }
     </style>
 </head>
 <body>
     <h1>Facebook Public Info Viewer</h1>
-    
+
     <form method="POST">
         {% csrf_token %}
         <input type="text" name="username" placeholder="Enter Facebook Username" required value="{{ username|default:'' }}">
@@ -38,7 +39,7 @@
 
     {% if user_data %}
         <div class="user-info">
-            <h2>{{ user_data.name }}</h2>
+            <h2>{{ user_data.name }} {% if user_data.is_verified %}✅{% endif %}</h2>
             <p><strong>ID:</strong> {{ user_data.id }}</p>
 
             {% if user_data.link %}
@@ -49,10 +50,6 @@
 
             {% if user_data.picture and user_data.picture.data and user_data.picture.data.url %}
                 <img src="{{ user_data.picture.data.url }}" alt="Profile Picture" width="150" />
-            {% endif %}
-
-            {% if user_data.is_verified %}
-                <p>✅ Verified</p>
             {% endif %}
 
             {% if user_data.followers_count %}
@@ -72,6 +69,15 @@
             {% if user_data.category %}
                 <p><strong>Category:</strong> {{ user_data.category }}</p>
                 <p><strong>Detected Type:</strong> Page</p>
+
+                <!-- Facebook Page Plugin -->
+                <iframe 
+                    src="https://www.facebook.com/plugins/page.php?href=https://www.facebook.com/{{ username }}&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId"
+                    width="500" height="600" style="border:none;overflow:hidden" 
+                    scrolling="no" frameborder="0" allowfullscreen="true" 
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+                </iframe>
+
             {% else %}
                 <p><strong>Detected Type:</strong> Profile</p>
             {% endif %}
