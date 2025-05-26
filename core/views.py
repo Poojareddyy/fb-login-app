@@ -29,7 +29,7 @@ def dashboard(request):
                     posts_response = requests.get(posts_url)
                     posts_data = posts_response.json()
                     user_data['posts'] = posts_data.get('data', [])
-    return render(request, 'dashboard.html', {
+    return render(request, 'core/dashboard.html', {
         'user_data': user_data, 
         'posts': user_data.get('posts', []) if user_data else [],
         'error': error, 
